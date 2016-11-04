@@ -28,7 +28,7 @@ from globus_sdk import AuthClient, TransferClient, AccessTokenAuthorizer, Refres
 # source_endpoint is the Globus endpoint id that is the origin for the data transfer
 # target_endpoint is the Globus endpoint id of the destination of the transfer 
 #
-source_endpoint = "20be28ee-962c-11e6-b0a4-22000b92c261"
+source_endpoint = ""
 target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 
 #
@@ -38,7 +38,7 @@ target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 # patterns are the types of files that are valid for transfer
 # endpoint_path is the base path at the endpoint where data files should be saved
 #
-watched_dir_windows = 'C:\\Users\\vagrant\\Documents'    # WINDOWS FOMAT PATH HERE
+watched_dir_windows = 'C:\\Users\\my_user_id\\Documents'    # WINDOWS FOMAT PATH HERE
 patterns = ['*.jpg', '*.tif', '*.png', '*.txt']
 endpoint_path = '/~/globustest/'
 
