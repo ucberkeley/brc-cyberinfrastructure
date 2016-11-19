@@ -1,5 +1,20 @@
 #!/usr/bin/env python
 
+'''
++++++++++++++++++++++++++++
+This software is available under the terms of the Educational Community License, Version 2.0 (ECL 2.0). This software is Copyright 2016 The Regents of the University of California, Berkeley ("Berkeley").
+The text of the ECL license is reproduced below.
+Educational Community License, Version 2.0
+*************************************
+Copyright 2016 The Regents of the University of California, Berkeley ("Berkeley")
+Educational Community License, Version 2.0, April 2007
+The Educational Community License version 2.0 ("ECL") consists of the
+Apache 2.0 license, modified to change the scope of the patent grant in
+section 3 to be specific to the needs of the education communities using
+this license. The original Apache 2.0 license can be found at:[http://www.apache.org/licenses/LICENSE-2.0]
++++++++++++++++++++++++++++
+'''
+
 import globus_sdk
 import sys, os.path, time, datetime, logging
 import ntpath, platform
