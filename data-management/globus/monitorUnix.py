@@ -1,22 +1,4 @@
 #!/usr/bin/env python
-'''
-+++++++++++++++++++++++++++
-This software is available under the terms of the Educational Community License, Version 2.0 (ECL 2.0). This software is Copyright 2016 The Regents of the University of California, Berkeley ("Berkeley").
-
-The text of the ECL license is reproduced below.
-
-Educational Community License, Version 2.0
-*************************************
-Copyright 2016 The Regents of the University of California, Berkeley ("Berkeley")
-
-Educational Community License, Version 2.0, April 2007
-
-The Educational Community License version 2.0 ("ECL") consists of the
-Apache 2.0 license, modified to change the scope of the patent grant in
-section 3 to be specific to the needs of the education communities using
-this license. The original Apache 2.0 license can be found at:[http://www.apache.org/licenses/LICENSE-2.0]
-+++++++++++++++++++++++++++
-'''
 
 import globus_sdk
 import sys, os.path, time, datetime, logging
@@ -42,9 +24,9 @@ from globus_sdk import AuthClient, TransferClient, AccessTokenAuthorizer, Refres
 
 #
 # source_endpoint is the Globus endpoint id that is the origin for the data transfer
-# target_endpoint is the Globus endpoint id of the destination of the transfer 
+# target_endpoint is the Globus endpoint id of the destination of the transfer
 #
-source_endpoint = ""
+source_endpoint = "3276961a-47a4-11e6-80e6-22000b1701d1"
 target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 
 #
@@ -52,7 +34,7 @@ target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 # patterns are the types of files that are valid for transfer
 # endpoint_path is the base path at the endpoint where data files should be saved
 #
-watched_dir = '/Users/my_user_name/Documents/Dev/code/globus/data'   # LINUX STLYE PATH
+watched_dir = '/Users/mmmanning/Documents/Dev/code/globus/data'   # LINUX STLYE PATH
 patterns = ['*.jpg', '*.tif', '*.png', '*.txt']
 endpoint_path = '/~/globustest/'
 
@@ -71,7 +53,7 @@ def authorize():
     global transfer_client
 
     CLIENT_ID = '76af25c8-c96b-49b2-9be7-56767395db6b'
-    client = globus_sdk.NativeAppAuthClient(CLIENT_ID)    
+    client = globus_sdk.NativeAppAuthClient(CLIENT_ID)
     client.oauth2_start_flow_native_app(refresh_tokens=True)
 
     authorize_url = client.oauth2_get_authorize_url()
@@ -148,7 +130,8 @@ class MyEventHandler(PatternMatchingEventHandler):
         logging.info("Transfer file mvfilename: %s" % mvfilename)
 
         # schedule each incoming file into a separate transfer
-        tdata.add_item( file_path,  target_path + mvfilename)
+        #tdata.add_item( file_path,  target_path + mvfilename)
+        tdata.add_item( file_path,  target_path)
 
         submit_result = transfer_client.submit_transfer(tdata)
         print("Task ID:", submit_result["task_id"])
@@ -182,9 +165,8 @@ def main():
 
 #
 #
-# 
+#
 
 if __name__ == "__main__":
 
     main()
-
