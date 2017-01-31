@@ -2,14 +2,17 @@
 
 import globus_sdk
 import sys, os.path, time, datetime, logging
+import psutil
 import ntpath
 
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
-from globus_sdk import AuthClient, TransferClient, AccessTokenAuthorizer, RefreshTokenAuthorizer
+from globus_sdk import AuthClient, TransferClient, AccessTokenAuthorizer, RefreshTokenAuthorizer, NativeAppAuthClient
 
+import webbrowser
 
+from utils import start_local_server, is_remote_session
 #
 # Script to automate the transfer of data files via globus
 #
@@ -18,10 +21,14 @@ from globus_sdk import AuthClient, TransferClient, AccessTokenAuthorizer, Refres
 # This is the linux version of the monitor script which expects file paths in linux format
 #
 
-# On running the script the user will be given a url that can be copied into a browser to authenticate
-# Follow the instructions and copy the resulting auth code back to the command prompt. Once authorized,
-# the script will begin to watch for actions on files in the watched folder.
+# REDIRECT_URI: specific webpage or local URI where you want to handle the auth_code sent from Globus Auth.
+# SCOPES: set of Globus Auth scopes which you are requesting. By default, this will be set to request access to the
+# full Globus Transfer service
 
+SERVER_ADDRESS = ('127.0.0.1', 8000)
+REDIRECT_URI = 'http://localhost:8000'
+SCOPES = ('openid email profile '
+          'urn:globus:auth:scope:transfer.api.globus.org:all')
 #
 # source_endpoint is the Globus endpoint id that is the origin for the data transfer
 # target_endpoint is the Globus endpoint id of the destination of the transfer
@@ -44,23 +51,32 @@ transfer_client = None
 count = 0
 
 
-def initialize():
-    print("initialize")
-
-
 
 def authorize():
     global transfer_client
 
     CLIENT_ID = '76af25c8-c96b-49b2-9be7-56767395db6b'
-    client = globus_sdk.NativeAppAuthClient(CLIENT_ID)
-    client.oauth2_start_flow_native_app(refresh_tokens=True)
+    #client = globus_sdk.NativeAppAuthClient(CLIENT_ID)
+    #client.oauth2_start_flow_native_app(refresh_tokens=True)
 
+    client = NativeAppAuthClient(client_id=CLIENT_ID)
+    client.oauth2_start_flow_native_app(requested_scopes=SCOPES,
+                                        redirect_uri=REDIRECT_URI,
+                                        refresh_tokens=True)
     authorize_url = client.oauth2_get_authorize_url()
-    print('Please go to this URL and login: {0}'.format(authorize_url))
 
-    auth_code = input('Please enter the code you get after login here: ').strip()
+    server = start_local_server(listen=SERVER_ADDRESS)
+
+    if not is_remote_session():
+        webbrowser.open(authorize_url, new=1)
+
+    auth_code = server.wait_for_code()
     token_response = client.oauth2_exchange_code_for_tokens(auth_code)
+
+    server.shutdown()
+
+
+    #token_response = client.oauth2_exchange_code_for_tokens(auth_code)
 
     # the useful values that you want at the end of this
     globus_auth_data = token_response.by_resource_server['auth.globus.org']
@@ -73,17 +89,17 @@ def authorize():
     logging.info ("globus token expires: %s" % ts)
 
     auth_client = AuthClient( authorizer=AccessTokenAuthorizer(globus_auth_token))
-    transfer_client = TransferClient( authorizer=AccessTokenAuthorizer(globus_transfer_token))
+    #transfer_client = TransferClient( authorizer=AccessTokenAuthorizer(globus_transfer_token))
 
 
-    # now let's bake a couple of authorizers
-    auth_authorizer2 = RefreshTokenAuthorizer(globus_refresh_token,  client)
-
+    # create refresh token for looooong running monitor
+    auth_authorizer2 = globus_sdk.RefreshTokenAuthorizer(globus_refresh_token, client, access_token=globus_transfer_token, expires_at=globus_token_expires)
+    transfer_client = TransferClient( authorizer=auth_authorizer2 )
 
     ep2result = transfer_client.endpoint_autoactivate(source_endpoint)
+
     logging.info ("source_endpoint autoactivate response code: %s" % ep2result["code"])
     logging.info ("source_endpoint autoactivate response message: %s" % ep2result["message"])
-
 
 
 
@@ -96,6 +112,7 @@ class MyEventHandler(PatternMatchingEventHandler):
     def on_created(self, event):
         super(MyEventHandler, self).on_created(event)
         logging.info("File %s was just created" % event.src_path)
+
         self.transfer(event.src_path)
 
     def on_deleted(self, event):
@@ -109,6 +126,12 @@ class MyEventHandler(PatternMatchingEventHandler):
     def transfer(self, file_path):
         global count
         label = "test transfer " + str(count)
+
+        # check that the file write has completed
+        inuse = self.checkFileInUse(file_path)
+        if ( inuse ):
+            logging.info("File %s is open by anopther process, cant transfer." % file_path)
+            return
 
         logging.info("Transfer file %s via globus" % file_path)
         tdata = globus_sdk.TransferData(transfer_client, source_endpoint,  target_endpoint, label=label)
@@ -140,6 +163,34 @@ class MyEventHandler(PatternMatchingEventHandler):
         logging.info("Transfer scheduled.")
         count = count + 1
 
+    def checkFileInUse(self, file_path):
+        maxTry = 10
+        count = 0
+        newfileopen = True
+        while ( newfileopen and count < maxTry):
+            newfileopen = self.isOpen(file_path)
+            logging.info("checkFileStatus checking: %s" % newfileopen)
+            if (newfileopen):
+                time.sleep(1)
+
+        logging.info("checkFileStatus in use: %s" % newfileopen)
+        return newfileopen
+
+    def isOpen(self, file_path):
+
+        for p in psutil.process_iter():
+            try:
+                #print (p.open_files())
+                for of in p.open_files():
+                    logging.info("current file in use: %s" % of.path)
+                    if ( of.path == file_path):
+                        logging.info("file in use ******   : %s" % file_path)
+                        return True
+            except:
+                pass
+        logging.info("file NOT in use: %s" % file_path)
+        return False
+
 
 def main():
     global watched_dir
@@ -149,8 +200,6 @@ def main():
     logging.info ( 'source folder: %s' % os.path.dirname(watched_dir))
 
     authorize()
-
-    initialize()
 
     event_handler = MyEventHandler(patterns=patterns)
     observer = Observer()
