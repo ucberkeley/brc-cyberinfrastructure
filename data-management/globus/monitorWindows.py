@@ -15,15 +15,22 @@ this license. The original Apache 2.0 license can be found at:[http://www.apache
 +++++++++++++++++++++++++++
 '''
 
+# MUST be globus_sdk >+ 0.4.4
 import globus_sdk
 import sys, os.path, time, datetime, logging
 import ntpath, platform
 
+# MUST be psutil > 5.0
+import psutil
+import utils
+
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 
-from globus_sdk import AuthClient, TransferClient, AccessTokenAuthorizer, RefreshTokenAuthorizer
+from globus_sdk import AuthClient, TransferClient, AccessTokenAuthorizer, RefreshTokenAuthorizer,  NativeAppAuthClient
 
+import webbrowser
+from utils import start_local_server, is_remote_session
 
 #
 # Script to automate the transfer of data files via globus
@@ -37,13 +44,23 @@ from globus_sdk import AuthClient, TransferClient, AccessTokenAuthorizer, Refres
 # This is the windows version of the monitor script which expects file paths in windows format
 # globus does not accept windows path specs so they must be converted
 #  use the syntax "/drive_letter/path", for example "/C/xinfo" lists the C:\xinfo directory.
-# This version of the monitor script converts file paths into globus convertions 
+# This version of the monitor script converts file paths into globus convertions
+
+# REDIRECT_URI: specific webpage or local URI where you want to handle the auth_code sent from Globus Auth.
+# SCOPES: set of Globus Auth scopes which you are requesting. By default, this will be set to request access to the
+# full Globus Transfer service
+
+SERVER_ADDRESS = ('127.0.0.1', 8000)
+REDIRECT_URI = 'http://localhost:8000'
+SCOPES = ('openid email profile '
+          'urn:globus:auth:scope:transfer.api.globus.org:all')
+
 
 #
 # source_endpoint is the Globus endpoint id that is the origin for the data transfer
-# target_endpoint is the Globus endpoint id of the destination of the transfer 
+# target_endpoint is the Globus endpoint id of the destination of the transfer
 #
-source_endpoint = ""
+source_endpoint = "YOUR_SOURCE_END_POINT"
 target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 
 #
@@ -53,7 +70,7 @@ target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 # patterns are the types of files that are valid for transfer
 # endpoint_path is the base path at the endpoint where data files should be saved
 #
-watched_dir_windows = 'C:\\Users\\my_user_id\\Documents'    # WINDOWS FOMAT PATH HERE
+watched_dir_windows = 'C:\\Users\\YOUR_USER_NAME_HERE\\Documents'    # WINDOWS FOMAT PATH HERE
 patterns = ['*.jpg', '*.tif', '*.png', '*.txt']
 endpoint_path = '/~/globustest/'
 
@@ -75,14 +92,30 @@ def authorize():
     global transfer_client
 
     CLIENT_ID = '76af25c8-c96b-49b2-9be7-56767395db6b'
-    client = globus_sdk.NativeAppAuthClient(CLIENT_ID)    
-    client.oauth2_start_flow_native_app(refresh_tokens=True)
+    #client = globus_sdk.NativeAppAuthClient(CLIENT_ID)
+    #client.oauth2_start_flow_native_app(refresh_tokens=True)
 
+    client = NativeAppAuthClient(client_id=CLIENT_ID)
+    client.oauth2_start_flow_native_app(requested_scopes=SCOPES,
+                                        redirect_uri=REDIRECT_URI,
+                                        refresh_tokens=True)
     authorize_url = client.oauth2_get_authorize_url()
-    print('Please go to this URL and login: {0}'.format(authorize_url))
 
-    auth_code = input('Please enter the code you get after login here: ').strip()
+    server = start_local_server(listen=SERVER_ADDRESS)
+
+    if not is_remote_session():
+        webbrowser.open(authorize_url, new=1)
+
+    auth_code = server.wait_for_code()
     token_response = client.oauth2_exchange_code_for_tokens(auth_code)
+
+    server.shutdown()
+
+    #authorize_url = client.oauth2_get_authorize_url()
+    #print('Please go to this URL and login: {0}'.format(authorize_url))
+
+    #auth_code = input('Please enter the code you get after login here: ').strip()
+    #token_response = client.oauth2_exchange_code_for_tokens(auth_code)
 
     # the useful values that you want at the end of this
     globus_auth_data = token_response.by_resource_server['auth.globus.org']
@@ -136,13 +169,19 @@ class MyEventHandler(PatternMatchingEventHandler):
         logging.info("File %s was just modified" % event.src_path)
 
     #
-    # Transfer the file to the target folder defined in endpoint_path 
-    # If the file is located in subfolders, the folder structure will be replicated under 
-    # the endpoint_path folder. 
+    # Transfer the file to the target folder defined in endpoint_path
+    # If the file is located in subfolders, the folder structure will be replicated under
+    # the endpoint_path folder.
     #
     def transfer(self, file_path):
         global count
         label = "test transfer " + str(count)
+
+        # check that the file write has completed
+        inuse = self.checkFileInUse(file_path)
+        if ( inuse ):
+            logging.info("File %s is open by anopther process, cant transfer." % file_path)
+            return
 
         logging.info("Transfer file %s via globus" % file_path)
         tdata = globus_sdk.TransferData(transfer_client, source_endpoint,  target_endpoint, label=label)
@@ -153,7 +192,7 @@ class MyEventHandler(PatternMatchingEventHandler):
 
         prefix_path = os.path.commonprefix([watched_dir_windows, file_path])
         logging.info("Watched dir prefix: %s " % prefix_path)
-        
+
         relative_path = os.path.relpath(file_path, prefix_path)
         relative_path_win = relative_path.replace('\\', '/')
         logging.info("relative path win: %s " % relative_path_win)
@@ -175,6 +214,34 @@ class MyEventHandler(PatternMatchingEventHandler):
         logging.info("Transfer scheduled.")
         count = count + 1
 
+    def checkFileInUse(self, file_path):
+        maxTry = 10
+        count = 0
+        newfileopen = True
+        while ( newfileopen and count < maxTry):
+            newfileopen = self.isOpen(file_path)
+            logging.info("checkFileStatus checking: %s" % newfileopen)
+            if (newfileopen):
+                time.sleep(1)
+
+        logging.info("checkFileStatus in use: %s" % newfileopen)
+        return newfileopen
+
+    def isOpen(self, file_path):
+
+        for p in psutil.process_iter():
+            try:
+                #print (p.open_files())
+                for of in p.open_files():
+                    #logging.info("current file in use: %s" % of.path)
+                    if ( of.path == file_path):
+                        logging.info("file in use : %s" % file_path)
+                        return True
+            except:
+                pass
+        logging.info("file NOT in use: %s" % file_path)
+        return False
+
 
 def main():
 
@@ -182,7 +249,7 @@ def main():
 
     logging.info ( 'source folder: %s' % os.path.dirname(watched_dir_windows))
 
-    initialize()    
+    initialize()
 
     authorize()
 
@@ -203,9 +270,8 @@ def main():
 
 #
 #
-# 
+#
 
 if __name__ == "__main__":
 
     main()
-
