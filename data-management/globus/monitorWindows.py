@@ -15,12 +15,9 @@ this license. The original Apache 2.0 license can be found at:[http://www.apache
 +++++++++++++++++++++++++++
 '''
 
-# MUST be globus_sdk >+ 0.4.4
 import globus_sdk
 import sys, os.path, time, datetime, logging
 import ntpath, platform
-
-# MUST be psutil > 5.0
 import psutil
 import utils
 
@@ -60,7 +57,7 @@ SCOPES = ('openid email profile '
 # source_endpoint is the Globus endpoint id that is the origin for the data transfer
 # target_endpoint is the Globus endpoint id of the destination of the transfer
 #
-source_endpoint = "YOUR_SOURCE_END_POINT"
+source_endpoint = ""  # GCP endpoint on device (Windows computer)
 target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 
 #
@@ -70,9 +67,9 @@ target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 # patterns are the types of files that are valid for transfer
 # endpoint_path is the base path at the endpoint where data files should be saved
 #
-watched_dir_windows = 'C:\\Users\\YOUR_USER_NAME_HERE\\Documents'    # WINDOWS FOMAT PATH HERE
+watched_dir_windows = 'C:\\Users\\USERNAME_HERE\\Documents'    # WINDOWS FOMAT PATH HERE
 patterns = ['*.jpg', '*.tif', '*.png', '*.txt']
-endpoint_path = '/~/globustest/'
+endpoint_path = '/~/globustest/'                               # Location of the data files on Savio /global/scratch/USERNAME_HERE/...
 
 
 #
@@ -198,7 +195,7 @@ class MyEventHandler(PatternMatchingEventHandler):
         logging.info("relative path win: %s " % relative_path_win)
 
         target_path = endpoint_path + relative_path_win
-        logging.info("target path: %s " % target_path)
+        logging.info("target path: %s" % target_path)
 
         # globus does not accept windows path specs so they must be converted
         #  use the syntax "/drive_letter/path", for example "/C/xinfo" lists the C:\xinfo directory.
