@@ -20,4 +20,5 @@ for PDF in $PDFS; do
     zip -r ${PDF}.zip $PDF
 done
 
+chmod 775 *.zip
 mv *.zip $DESTINATION
