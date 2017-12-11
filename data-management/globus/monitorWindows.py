@@ -57,7 +57,7 @@ SCOPES = ('openid email profile '
 # source_endpoint is the Globus endpoint id that is the origin for the data transfer
 # target_endpoint is the Globus endpoint id of the destination of the transfer
 #
-source_endpoint = ""  # GCP endpoint on device (Windows computer)
+source_endpoint = "20be28ee-962c-11e6-b0a4-22000b92c261"
 target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 
 #
@@ -67,9 +67,9 @@ target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
 # patterns are the types of files that are valid for transfer
 # endpoint_path is the base path at the endpoint where data files should be saved
 #
-watched_dir_windows = 'C:\\Users\\USERNAME_HERE\\Documents'    # WINDOWS FOMAT PATH HERE
+watched_dir_windows = 'C:\\Users\\vagrant\\Documents'    # WINDOWS FOMAT PATH HERE
 patterns = ['*.jpg', '*.tif', '*.png', '*.txt']
-endpoint_path = '/~/globustest/'                               # Location of the data files on Savio /global/scratch/USERNAME_HERE/...
+endpoint_path = '/~/globustest/'
 
 
 #
@@ -89,11 +89,9 @@ def authorize():
     global transfer_client
 
     CLIENT_ID = '76af25c8-c96b-49b2-9be7-56767395db6b'
-    #client = globus_sdk.NativeAppAuthClient(CLIENT_ID)
-    #client.oauth2_start_flow_native_app(refresh_tokens=True)
 
     client = NativeAppAuthClient(client_id=CLIENT_ID)
-    client.oauth2_start_flow_native_app(requested_scopes=SCOPES,
+    client.oauth2_start_flow(requested_scopes=SCOPES,
                                         redirect_uri=REDIRECT_URI,
                                         refresh_tokens=True)
     authorize_url = client.oauth2_get_authorize_url()
@@ -195,14 +193,14 @@ class MyEventHandler(PatternMatchingEventHandler):
         logging.info("relative path win: %s " % relative_path_win)
 
         target_path = endpoint_path + relative_path_win
-        logging.info("target path: %s" % target_path)
+        logging.info("target path: %s---" % target_path)
 
         # globus does not accept windows path specs so they must be converted
         #  use the syntax "/drive_letter/path", for example "/C/xinfo" lists the C:\xinfo directory.
         file_path_fixed = file_path.replace('\\', '/')
         file_path_fixed = file_path_fixed.replace(':', '')
         file_path_fixed = '/' + file_path_fixed
-        logging.info("filepath fixed: %s" % file_path_fixed)
+        logging.info("filepath fixed: %s---" % file_path_fixed)
         tdata.add_item( file_path_fixed,  target_path )
 
         submit_result = transfer_client.submit_transfer(tdata)
@@ -232,7 +230,7 @@ class MyEventHandler(PatternMatchingEventHandler):
                 for of in p.open_files():
                     #logging.info("current file in use: %s" % of.path)
                     if ( of.path == file_path):
-                        logging.info("file in use : %s" % file_path)
+                        logging.info("file in use ******   : %s" % file_path)
                         return True
             except:
                 pass
