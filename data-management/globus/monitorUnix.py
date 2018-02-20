@@ -35,7 +35,6 @@ SCOPES = ('openid email profile '
 #
 source_endpoint = "3276961a-47a4-11e6-80e6-22000b1701d1"
 target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
-
 #
 # watched_dir is the full path to the top folder of the data files for transfer
 # patterns are the types of files that are valid for transfer
@@ -60,7 +59,7 @@ def authorize():
     #client.oauth2_start_flow_native_app(refresh_tokens=True)
 
     client = NativeAppAuthClient(client_id=CLIENT_ID)
-    client.oauth2_start_flow_native_app(requested_scopes=SCOPES,
+    client.oauth2_start_flow(requested_scopes=SCOPES,
                                         redirect_uri=REDIRECT_URI,
                                         refresh_tokens=True)
     authorize_url = client.oauth2_get_authorize_url()
