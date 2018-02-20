@@ -1,5 +1,4 @@
-
-#!/usr/bin/env python
+ #!/usr/bin/env python
 
 import globus_sdk
 import sys, os.path, time, datetime, logging
@@ -34,17 +33,15 @@ SCOPES = ('openid email profile '
 # source_endpoint is the Globus endpoint id that is the origin for the data transfer
 # target_endpoint is the Globus endpoint id of the destination of the transfer
 #
-source_endpoint = "9d5aa7a4-bbc3-11e5-9a07-22000b96db58"  # (rick's laptop endpoint: Rick_ResearchIT_UCBerkeley); was: "3276961a-47a4-11e6-80e6-22000b1701d1"
+source_endpoint = "3276961a-47a4-11e6-80e6-22000b1701d1"
 target_endpoint = "d47068d3-6d04-11e5-ba46-22000b92c6ec"  # (ucb#brc)
-#target_endpoint = "ddb59aef-6d04-11e5-ba46-22000b92c6ec"  # (Globus Tutorial Endpoint 1)
-
 #
 # watched_dir is the full path to the top folder of the data files for transfer
 # patterns are the types of files that are valid for transfer
 # endpoint_path is the base path at the endpoint where data files should be saved
 #
-watched_dir = '/Users/rjaffe/Documents/Dev/code/globus/data/'   # LINUX STLYE PATH . was '/Users/mmmanning/Documents/Dev/code/globus/data'
-patterns = ['*.jpg', '*.tif', '*.png', '*.txt']   
+watched_dir = '/Users/mmmanning/Documents/Dev/code/globus/data'   # LINUX STLYE PATH
+patterns = ['*.jpg', '*.tif', '*.png', '*.txt']
 endpoint_path = '/~/globustest/'
 
 #
@@ -182,7 +179,7 @@ class MyEventHandler(PatternMatchingEventHandler):
 
         for p in psutil.process_iter():
             try:
-                print (p.open_files())
+                #print (p.open_files())
                 for of in p.open_files():
                     logging.info("current file in use: %s" % of.path)
                     if ( of.path == file_path):
