@@ -1,4 +1,4 @@
- #!/usr/bin/env python
+#!/usr/bin/env python
 
 import globus_sdk
 import sys, os.path, time, datetime, logging
