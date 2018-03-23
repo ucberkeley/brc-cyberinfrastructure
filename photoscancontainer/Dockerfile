@@ -1,7 +1,7 @@
-# docker build --rm --tag photoscan .
+# docker build --rm --tag photoscan13 .
 
 ##
-## Dockerfile for caiman
+## Dockerfile for photoscan13
 ##
 
 ## Built using Ubuntu 16.04 LTS (xenial) since that is one of the
@@ -11,17 +11,14 @@
 FROM ubuntu:xenial
 
 RUN apt-get update && \
-    apt-get install -y software-properties-common && \
+    apt-get install -y software-properties-common libglib2.0 libqt5gui5 libglu1-mesa libgomp1 zlib1g wget vim && \
     apt-get update
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
-RUN apt-get update --fix-missing && apt-get install -y gcc libgl1-mesa-dev libgeos-dev libglu1-mesa-dev libgtk2.0-0 wget bzip2 ca-certificates \
-    libglib2.0-0 libxext6 libsm6 libxrender1 vim \
-    git mercurial subversion
+## install Agisoft Photoscan 1.3
+RUN wget --directory-prefix=/usr/local http://download.agisoft.com/photoscan-pro_1_3_0_amd64.tar.gz ;\
+(cd /usr/local && tar zxvf photoscan-pro_1_3_0_amd64.tar.gz) ;\
+(cd /usr/local/bin && ln -s ../photoscan-pro/photoscan-pro.sh) ;\
+rm -f /usr/local/photoscan-pro_1_3_0_amd64.tar.gz
 
-RUN /bin/bash -c 'mkdir /scratch/'
-RUN /bin/bash -c 'mkdir /global/'
-
-ENV PATH /opt/photoscan-pro:$PATH
-
-ENV SHELL=/bin/bash
+ENTRYPOINT ["photoscan13"]
+CMD ["-h"]
