@@ -11,8 +11,5 @@ cd tesseract-containerized
 docker build --rm --tag tesseract .
 docker tag tesseract:latest mmmanning/tesseract:latest
 docker push mmmanning/tesseract:latest
-docker images
-sudo singularity create --size 375 tesseract.img
-sudo singularity import tesseract.img docker://mmmanning/tesseract:latest
-singularity exec tesseract.img tesseract -v
+singularity pull docker://mmmanning/tesseract:latest
 ```
