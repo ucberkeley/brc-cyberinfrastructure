@@ -1,4 +1,4 @@
-# Example of building a Docker container for Tesseract4 and convert it to a Singularity container
+# Build a Docker container for Tesseract4 and convert it to a Singularity container
 
 
 Build a Tesseract container, push it to Dockerhub, and convert it 
