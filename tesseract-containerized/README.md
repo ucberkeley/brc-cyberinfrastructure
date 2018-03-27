@@ -9,9 +9,9 @@ else that you have the Singularity container runtime installed.
 $ git clone https://github.com/ucberkeley/brc-cyberinfrastructure
 $ cd brc-cyberinfrastructure/tesseract-containerized
 $ docker build --rm --tag tesseract .
-$ docker tag tesseract:latest mmmanning/tesseract:latest
-$ docker push mmmanning/tesseract:latest
-$ singularity pull docker://mmmanning/tesseract:latest
+$ docker tag tesseract:latest ucbrit/tesseract:latest
+$ docker push ucbrit/tesseract:latest
+$ singularity pull docker://ucbrit/tesseract:latest
 ```
 
 To test, shell into the Singularity container and check that Tesseract is running in the container:
