@@ -17,6 +17,8 @@ RUN apt-get update && \
 ## install Agisoft Photoscan 1.3
 RUN wget --directory-prefix=/usr/local http://download.agisoft.com/photoscan-pro_1_3_0_amd64.tar.gz ;\
 (cd /usr/local && tar zxvf photoscan-pro_1_3_0_amd64.tar.gz) ;\
+chmod 755 /usr/local/photoscan-pro/ ;\
+(cd /usr/local/photoscan-pro && find . -executable -exec chmod go+rx {} \;) ;\
 (cd /usr/local/bin && ln -s ../photoscan-pro/photoscan.sh) ;\
 rm -f /usr/local/photoscan-pro_1_3_0_amd64.tar.gz
 
