@@ -15,10 +15,14 @@
 FROM ubuntu:xenial
 
 RUN apt-get update && \
+    apt-get -y upgrade && \
     apt-get install -y software-properties-common && \
-    add-apt-repository -y -u ppa:alex-p/tesseract-ocr && \
-    apt-get update
-RUN apt-get install -y tesseract-ocr && \
+    add-apt-repository -y -u ppa:alex-p/tesseract-ocr 
+
+RUN apt-get update && \
+    apt-get -y upgrade && \
+    apt-get install -y tesseract-ocr && \
+    apt-get install -y tesseract-ocr-all && \
     rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["tesseract"]
