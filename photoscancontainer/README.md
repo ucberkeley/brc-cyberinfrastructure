@@ -2,7 +2,7 @@
 
 Build a Photoscan container using Singularity to run on Jetstream, Savio, or anyehwere else the Singularity container runtime is installed.
 
-*These instructions are current as of 26 April 2018, for Photoscan v1.4.2; as of this date, the `Singularity` file in this repo folder builds this version of Photoscan. It's a good idea to include the Photoscan version used in the name the Singularity container, as in `photoscan_1_4_2.simg`, below.
+*These instructions are current as of 26 April 2018, for Photoscan v1.4.2; as of this date, the `Singularity` file in this repo folder builds this version of Photoscan. It's a good idea to include the Photoscan version used in the name the Singularity container, as in `photoscan_1_4_2.simg`, below.*
 
 ```bash
 $ git clone https://github.com/ucberkeley/brc-cyberinfrastructure
