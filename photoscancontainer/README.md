@@ -1,4 +1,4 @@
-# Build a Photoscan container, push it to Dockerhub, and convert it to run as a Singularity container
+# Build a Singularity container that includes Photoscan, using a Singularity recipe file
 
 Build a Photoscan container using Singularity to run on Jetstream, Savio, or anyehwere else the Singularity container runtime is installed.
 
