@@ -4,33 +4,41 @@
 import codecs
 import httplib2
 import os
+import io
+import sys
 from googleapiclient.http import MediaIoBaseDownload
 from googleapiclient.http import MediaFileUpload
 from apiclient import discovery, errors
 from oauth2client import client
 from oauth2client import tools
-from oauth2client.file import Storage
+from oauth2client import file
 
 # Google Drive authentication based on AdamAndersonFindSumerian.ipynb
 
 SCOPES = 'https://www.googleapis.com/auth/drive'
 APPLICATION_NAME = 'gDriveConnect'
 
+# Based on AdamAndersonFindSumerian.ipynb
+# Reference: https://developers.google.com/drive/v3/web/quickstart/python
 def get_credentials(CLIENT_SECRET_FILE):
+    import argparse
+    parser = argparse.ArgumentParser(parents=[tools.argparser])
+    parser.add_argument('-f', help=argparse.SUPPRESS)
+
+    flags = parser.parse_known_args()[0]
+    flags.noauth_local_webserver = True
+    
     home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
+    credential_dir = os.path.join(home_dir, '.meh')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir, 'gDriveConnect.json')
-    store = Storage(credential_path)    
+    store = file.Storage(credential_path)    
     credentials = store.get()
     if not credentials or credentials.invalid:
         flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
         flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
+        credentials = tools.run_flow(flow, store, flags)
         print('Storing credentials to ' + credential_path)
     return credentials
 
@@ -60,7 +68,7 @@ class GDrive:
     # Source: https://developers.google.com/drive/v3/web/manage-downloads
     # Source: AdamAndersonFindSumerian.ipynb
     def download_file(self, file_id, destination=None):
-        request = self.service.files().get_media(fileId=google_id)
+        request = self.service.files().get_media(fileId=file_id)
         fh = io.BytesIO()
         downloader = MediaIoBaseDownload(fh, request)
         done = False
@@ -69,7 +77,6 @@ class GDrive:
                 status, done = downloader.next_chunk()
                 sys.stdout.write('.')
             except errors.HttpError as error :
-                print('Error file:', value, '   id:', key)
                 print('An error occurred pulling the next chunk:', error)
                 break
         fh.seek(0)
@@ -92,6 +99,7 @@ class GDrive:
             media_body=media,
             fields='id'
         ).execute()
+        return file
 
     def move_file(self, file_id, new_folder, old_folder=None):
         return self.service.files().update(
