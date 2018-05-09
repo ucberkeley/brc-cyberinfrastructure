@@ -29,7 +29,7 @@ def get_credentials(CLIENT_SECRET_FILE):
     flags.noauth_local_webserver = True
     
     home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.meh')
+    credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
     credential_path = os.path.join(credential_dir, 'gDriveConnect.json')
