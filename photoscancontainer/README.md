@@ -24,7 +24,7 @@ Copyright (C) 2017 Agisoft LLC.
 A simple functional test (which requires access to a license server that serves a valid Photoscan license) is included in the subdirectory "container-test" (a Python script and a set of images that the script references). Invocation of the script would look something like this (replacing, as appropriate: the /global/scratch... paths; as well as the reference to a license server on UC Berkeley's shared HPC cluster, Savio, with another license server):
 
 ```bash
-SINGULARITYENV_RLM_LICENSE=5053@lmgr0@brc.berkeley.edu singularity exec -B /global/scratch/username/photoscan/:/opt /global/scratch/username/containers/photoscan_1_4_2.simg /usr/local/photoscan-pro/photoscan.sh -r /opt/ps.py -platform offscreen
+SINGULARITYENV_RLM_LICENSE=5053@lmgr0@brc.berkeley.edu singularity exec -B /global/scratch/username/photoscan/:/opt /global/scratch/username/containers/photoscan_1_4_2.simg /usr/local/photoscan-pro/photoscan.sh -r /opt/photoscan-test.py -platform offscreen
 ```
 
 A successful response will look something like this:
