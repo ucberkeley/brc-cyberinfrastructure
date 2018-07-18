@@ -20,5 +20,5 @@ rm -f /usr/local/photoscan-pro_1_4_2_amd64.tar.gz
 
 export SHELL PATH SINGULARITY_SHELL 
 
-exec mkdir /opt/photoscan-pro
-exec mkdir /scratch/
+mkdir /opt/photoscan-pro
+mkdir /scratch/
