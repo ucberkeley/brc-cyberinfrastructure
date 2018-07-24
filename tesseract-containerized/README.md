@@ -23,3 +23,5 @@ Singularity: Invoking an interactive shell within container...
 tesseract 4.0.0.beta.1
 [...]
 ```
+
+As of 24 July 2018, these instructions have been tested using Singularity version 2.5.2.
