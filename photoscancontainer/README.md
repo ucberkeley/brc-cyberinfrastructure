@@ -37,4 +37,4 @@ saved project in 0.014898 sec
 
 
 
-**Note**: *These instructions supercede a previous set that involved building a Docker container and pulling it into Singularity. As of Singularity v2.4.6 and Photoscan 1.4.2, the method given here is the one that works (and is faster besides).*
+**Note**: *These instructions supercede a previous set that involved building a Docker container and pulling it into Singularity. As of Singularity v2.5.2 and Photoscan 1.4.2, the method given here is the one that works (and is faster besides).*
