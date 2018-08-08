@@ -24,4 +24,4 @@ tesseract 4.0.0.beta.1
 [...]
 ```
 
-As of 24 July 2018, these instructions have been tested using Singularity version 2.5.2.
+As of 08 August 2018, these instructions have been tested using Singularity version 2.6.0.
