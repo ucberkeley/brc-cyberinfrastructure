@@ -1,0 +1,11 @@
+Bootstrap: docker 
+From: localhost:5000/tensorflow:17.10
+
+%post
+    mkdir -p /global/home/users
+    mkdir -p /global/scratch
+    touch /bin/nvidia-smi
+
+%runscript
+    python "$@"
+
