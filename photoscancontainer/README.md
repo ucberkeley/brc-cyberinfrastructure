@@ -35,7 +35,7 @@ SaveProject: chunks = 0, path = /opt/photoscan-test.psz
 saved project in 0.014898 sec
 ```
 
-Deeper exercise of Photoscan functionality should probably not use the sample images of a coffeecup. Instead, use images provided by the Photoscan vendor (Agisoft) at http://www.agisoft.com/downloads/sample-data/ with appropriate changes to the/a test script.
+Deeper exercise of Photoscan functionality should probably not use the sample images of a coffee cup. Instead, use images provided by the Photoscan vendor (Agisoft) at http://www.agisoft.com/downloads/sample-data/ with appropriate changes to the/a test script.
 
 
 **Note**: *These instructions supercede a previous set that involved building a Docker container and pulling it into Singularity. As of Singularity v2.6.0 and Photoscan 1.4.3, the method given here is the one that works (and is faster besides).*
