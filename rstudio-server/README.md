@@ -7,12 +7,14 @@ To run RStudio Server on a compute node and connect via your browser here are th
   1) Using either `srun` or `sbatch`, start a Savio job on one or more compute nodes. In the job script (or in the interactive session), execute one of the following (depending on whether you want RStudio to require you to enter a password)to start RStudio server:
      - `singularity run /global/scratch/paciorek/rstudio_server_0.1.img`
      - `PASSWORD=foo singularity run /global/scratch/paciorek/rstudio_server_0.1.img --auth-pam-helper-path /usr/lib/rstudio-server/bin/pam-helper --auth-none 0`
+
      Note the name of the Savio node, e.g, `n0070.savio2`, on which the job started.
 
   2) Login to the Savio visualization node, start a vncserver session, and connect to a VNC Viewer window (i.e., a remote desktop session) following [these instructions](https://research-it.berkeley.edu/services/high-performance-computing/using-brc-visualization-node-realvnc).
 
   3) From a terminal in the remote desktop session run the following (changing n0070.savio2 as needed):
      - `/global/scratch/kmuriki/otterbrowser http://n0070.savio2:8787`
+
      That should connect you to an RStudio session within a browser window. If you required authentication in step 1, you'll need to authenticate with your Savio user name and the password specified in step 1.
       
   4) When you are done with RStudio, make sure to kill your `srun` or `sbatch` session so you are not charged for time you don't need.
