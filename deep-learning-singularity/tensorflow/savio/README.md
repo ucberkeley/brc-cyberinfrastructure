@@ -10,7 +10,7 @@ docker tag nvcr.io/nvidia/tensorflow:18.02-py3 localhost:5000/tensorflow
 docker push localhost:5000/tensorflow # Push the container to your local registry
 ```
 
-Now, the build file is very similar to the previous except we are using our own local registry. I save it as TensorflowGPU.
+Now, the build file is very similar to the previous except we are using our own local registry. I save it as TensorflowGPU_savio.
 
 ```bash
 Bootstrap: docker 
