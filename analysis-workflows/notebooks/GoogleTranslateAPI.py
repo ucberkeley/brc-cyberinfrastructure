@@ -41,7 +41,7 @@ results_folder = '1lVJoATSlYFyb6I_N8EwGVyhSn_AM6vuX'
 # Credentials
 # translate_secret = 'shapreau_translate.json'
 translate_secret = 'shapreau_translate.json'
-google_drive_secret = 'client_secret.json'
+google_drive_secret = 'shapreau_translate.json'
 
 
 # ## Google Drive Authentication
