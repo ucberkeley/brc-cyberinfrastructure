@@ -1,0 +1,5 @@
+#!/bin/bash
+JOB_ID=$(sbatch $(dirname $0)/translate-job.sh | awk '{ print $NF }')
+echo "Successfully submitted job (Job number is $JOB_ID)"
+
+watch "echo \"Press Control-C to exit (Job will continue running)\" && squeue -u $USER && tail -n10 slurm-${JOB_ID}.out"
