@@ -1,5 +1,8 @@
 # Build a Singularity container that includes Photoscan, using a Singularity recipe file
 
+*This repository is no longer maintained. For a maintained version of materials in this tree, visit https://github.com/ucb-rit/singularity-photoscan.*
+
+
 Build a Photoscan container using Singularity to run on Jetstream, Savio, or anyehwere else the Singularity container runtime is installed.
 
 *These instructions are current as of 08 August 2018, for Photoscan v1.4.3; as of this date, the `Singularity` file in this repo folder builds this version of Photoscan. It's a good idea to include the Photoscan version used in the name the Singularity container, as in `photoscan_1_4_3.simg`, below.*
