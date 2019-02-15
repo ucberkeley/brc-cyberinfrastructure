@@ -1,6 +1,8 @@
 # Build a Docker container for Tesseract4 and convert it to a Singularity container
 
 
+*This repository is no longer maintained. For a maintained version of materials in this tree, visit https://github.com/ucb-rit/singularity-tesseract.*
+
 Build a Tesseract container, push it to Dockerhub, and convert it 
 to run as a Singularity container on Jetstream, Savio, or anyehwere
 else that you have the Singularity container runtime installed.
